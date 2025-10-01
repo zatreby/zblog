@@ -1,0 +1,54 @@
+# Node.js and npm/pnpm
+node_modules/
+.pnpm-store/
+package-lock.json
+npm-debug.log
+yarn.lock
+
+# Next.js
+/frontend/.next/
+/frontend/out/
+/frontend/.env
+/frontend/.env.local
+/frontend/.env.*.local
+
+# PHP and SQLite
+/backend/*.log
+/backend/cache/
+/backend/tmp/
+
+# DevOps and temporary files
+.pids
+*.log
+*.pid
+*.seed
+*.swo
+*.swp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build and dist files
+/dist/
+/build/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# SQLite database (optional: comment out if you want to commit blog.db)
+/backend/blog.db
+
+# Documentation and misc
+/docs/*.pdf
+/docs/*.bak
