@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Post {
   id: string;
@@ -163,12 +165,12 @@ export default function HomePage() {
               />
             </div>
             <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Content</label>
+              <label className="block text-gray-700 text-sm font-bold mb-2">Content (Markdown)</label>
               <textarea
                 value={newPost.content}
                 onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-32 resize-none"
-                placeholder="Write your content here..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-32 resize-none font-mono text-sm"
+                placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
                 disabled={creating}
               />
             </div>
@@ -206,9 +208,11 @@ export default function HomePage() {
                   <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
                     {post.title}
                   </h2>
-                  <p className="text-gray-600 mb-4 line-clamp-3">
-                    {post.content}
-                  </p>
+                  <div className="text-gray-600 mb-4 line-clamp-3 prose prose-sm max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {post.content}
+                    </ReactMarkdown>
+                  </div>
                   <div className="text-sm text-gray-500 mb-4">
                     <div>Created: {formatDate(post.created_at)}</div>
                     {post.last_modified !== post.created_at && (

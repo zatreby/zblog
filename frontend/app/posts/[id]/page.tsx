@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Post {
   id: string;
@@ -140,10 +142,10 @@ export default function PostPage() {
           </div>
           
           <div className="p-8">
-            <div className="prose prose-lg max-w-none">
-              <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
+            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {post.content}
-              </div>
+              </ReactMarkdown>
             </div>
           </div>
 

@@ -133,12 +133,12 @@ export default function EditPostPage() {
               />
             </div>
             <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Content</label>
+              <label className="block text-gray-700 text-sm font-bold mb-2">Content (Markdown)</label>
               <textarea
                 value={editedPost.content}
                 onChange={(e) => setEditedPost({ ...editedPost, content: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-48 resize-y"
-                placeholder="Write your content here..."
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-48 resize-y font-mono text-sm"
+                placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
                 disabled={updating}
               />
             </div>
