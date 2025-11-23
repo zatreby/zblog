@@ -152,7 +152,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-base-900 tracking-tight">
-              Blog
+              Zlogg
             </h1>
             <div className="flex gap-3">
               <button
