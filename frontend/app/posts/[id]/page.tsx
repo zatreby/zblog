@@ -19,7 +19,7 @@ export default function PostPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://zblogger.wuaze.com/api';
 
   useEffect(() => {
     if (params.id) {

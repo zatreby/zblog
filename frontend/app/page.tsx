@@ -19,7 +19,7 @@ export default function HomePage() {
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [creating, setCreating] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://zblogger.wuaze.com/api';
 
   useEffect(() => {
     fetchPosts();

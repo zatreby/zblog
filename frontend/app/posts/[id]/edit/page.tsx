@@ -21,7 +21,7 @@ export default function EditPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://zblogger.wuaze.com/api';
 
   useEffect(() => {
     if (params.id) {
