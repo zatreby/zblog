@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -78,20 +79,20 @@ export default function EditPostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-2xl text-indigo-600 animate-pulse">Loading post...</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="text-lg text-slate-600 font-medium">Loading post...</div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md">
-          <div className="text-red-600 text-xl mb-4">{error || 'Post not found'}</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg border border-base-200 shadow-sm p-8 max-w-md">
+          <div className="text-base-900 text-lg font-medium mb-4">{error || 'Post not found'}</div>
           <Link 
             href="/"
-            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="inline-block px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 transition-colors font-medium"
           >
             Back to Home
           </Link>
@@ -101,58 +102,65 @@ export default function EditPostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+    <div className="min-h-screen bg-base-50">
       {/* Header */}
-      <header className="bg-white shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <header className="bg-white border-b border-base-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <Link
               href={`/posts/${post.id}`}
-              className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
+              className="text-slate-600 hover:text-slate-900 flex items-center gap-2 font-medium text-sm transition-colors"
             >
-              <span>←</span> Back to Post
+              <ArrowLeft className="w-4 h-4" />
+              Back to Post
             </Link>
           </div>
         </div>
       </header>
 
       {/* Edit Form */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">Edit Post</h1>
+      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg border border-base-200 shadow-sm p-6 sm:p-8">
+          <h1 className="text-2xl font-semibold text-base-900 mb-6">Edit Post</h1>
           <form onSubmit={handleUpdatePost}>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Title</label>
+            <div className="mb-5">
+              <label htmlFor="title" className="block text-sm font-medium text-base-700 mb-2">
+                Title
+              </label>
               <input
+                id="title"
                 type="text"
                 value={editedPost.title}
                 onChange={(e) => setEditedPost({ ...editedPost, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-base-900 placeholder-base-400"
                 placeholder="Enter post title..."
                 disabled={updating}
               />
             </div>
             <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Content (Markdown)</label>
+              <label htmlFor="content" className="block text-sm font-medium text-base-700 mb-2">
+                Content (Markdown)
+              </label>
               <textarea
+                id="content"
                 value={editedPost.content}
                 onChange={(e) => setEditedPost({ ...editedPost, content: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-48 resize-y font-mono text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 h-64 resize-y font-mono text-sm text-base-900 placeholder-base-400"
                 placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
                 disabled={updating}
               />
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={updating}
-                className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {updating ? 'Updating...' : 'Update Post'}
               </button>
               <Link
                 href={`/posts/${post.id}`}
-                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all"
+                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
               >
                 Cancel
               </Link>

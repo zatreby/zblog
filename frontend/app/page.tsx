@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { toast } from 'sonner';
+import { AlertTriangle, Loader2 } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -116,20 +117,20 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-2xl text-indigo-600 animate-pulse">Loading posts...</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="text-lg text-slate-600 font-medium">Loading posts...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <div className="text-red-600 text-xl mb-4">Error: {error}</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg border border-base-200 shadow-sm p-8 max-w-md">
+          <div className="text-base-900 text-lg font-medium mb-4">Error: {error}</div>
           <button 
             onClick={fetchPosts}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 transition-colors font-medium"
           >
             Retry
           </button>
@@ -139,26 +140,26 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+    <div className="min-h-screen bg-base-50">
       {/* Header */}
-      <header className="bg-white shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+      <header className="bg-white border-b border-base-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
-              JAMstack Blog
+            <h1 className="text-2xl font-bold text-base-900 tracking-tight">
+              Blog
             </h1>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowCreateForm(!showCreateForm)}
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all transform hover:scale-105"
-              >
-                {showCreateForm ? 'Cancel' : '+ New Post'}
-              </button>
+            <div className="flex gap-3">
               <button
                 onClick={fetchPosts}
-                className="px-4 py-2 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                className="px-4 py-2 text-sm border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors font-medium"
               >
                 Refresh
+              </button>
+              <button
+                onClick={() => setShowCreateForm(!showCreateForm)}
+                className="px-4 py-2 text-sm bg-accent-600 text-white rounded-md hover:bg-accent-700 transition-colors font-medium"
+              >
+                {showCreateForm ? 'Cancel' : '+ New Post'}
               </button>
             </div>
           </div>
@@ -167,26 +168,32 @@ export default function HomePage() {
 
       {/* Create Post Form */}
       {showCreateForm && (
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <form onSubmit={handleCreatePost} className="bg-white rounded-xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Create New Post</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Title</label>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <form onSubmit={handleCreatePost} className="bg-white rounded-lg border border-base-200 shadow-sm p-6 sm:p-8">
+            <h2 className="text-xl font-semibold mb-6 text-base-900">Create New Post</h2>
+            <div className="mb-5">
+              <label htmlFor="title" className="block text-sm font-medium text-base-700 mb-2">
+                Title
+              </label>
               <input
+                id="title"
                 type="text"
                 value={newPost.title}
                 onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-base-900 placeholder-base-400"
                 placeholder="Enter post title..."
                 disabled={creating}
               />
             </div>
             <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Content (Markdown)</label>
+              <label htmlFor="content" className="block text-sm font-medium text-base-700 mb-2">
+                Content (Markdown)
+              </label>
               <textarea
+                id="content"
                 value={newPost.content}
                 onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 h-32 resize-none font-mono text-sm"
+                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 h-40 resize-none font-mono text-sm text-base-900 placeholder-base-400"
                 placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
                 disabled={creating}
               />
@@ -194,7 +201,7 @@ export default function HomePage() {
             <button
               type="submit"
               disabled={creating}
-              className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               {creating ? 'Creating...' : 'Create Post'}
             </button>
@@ -203,13 +210,13 @@ export default function HomePage() {
       )}
 
       {/* Posts Grid */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {posts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-xl mb-4">No posts yet</div>
+          <div className="text-center py-16">
+            <div className="text-slate-600 text-lg mb-4">No posts yet</div>
             <button
               onClick={() => setShowCreateForm(true)}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+              className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 transition-colors font-medium"
             >
               Create your first post
             </button>
@@ -219,18 +226,18 @@ export default function HomePage() {
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all transform hover:scale-105 overflow-hidden"
+                className="bg-white rounded-lg border border-base-200 shadow-sm hover:shadow-md transition-all overflow-hidden"
               >
                 <div className="p-6">
-                  <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2">
+                  <h2 className="text-lg font-semibold text-base-900 mb-3 line-clamp-2">
                     {post.title}
                   </h2>
-                  <div className="text-gray-600 mb-4 line-clamp-3 prose prose-sm max-w-none">
+                  <div className="text-slate-600 mb-4 line-clamp-3 prose prose-sm max-w-none prose-slate">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {post.content}
                     </ReactMarkdown>
                   </div>
-                  <div className="text-sm text-gray-500 mb-4">
+                  <div className="text-xs text-slate-500 mb-4 space-y-1">
                     <div>Created: {formatDate(post.created_at)}</div>
                     {post.last_modified !== post.created_at && (
                       <div>Modified: {formatDate(post.last_modified)}</div>
@@ -239,19 +246,19 @@ export default function HomePage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/posts/${post.id}`}
-                      className="flex-1 text-center px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition-colors"
+                      className="flex-1 text-center px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
                     >
                       View
                     </Link>
                     <Link
                       href={`/posts/${post.id}/edit`}
-                      className="flex-1 text-center px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+                      className="flex-1 text-center px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
                     >
                       Edit
                     </Link>
                     <button
                       onClick={() => handleDeleteClick(post.id, post.title)}
-                      className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+                      className="flex-1 px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
                     >
                       Delete
                     </button>
@@ -266,68 +273,37 @@ export default function HomePage() {
       {/* Delete Confirmation Modal */}
       {deleteModal && (
         <Dialog open={!!deleteModal} onClose={handleDeleteCancel} className="relative z-50">
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 bg-base-900/50" aria-hidden="true" />
           <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-            <DialogPanel className="max-w-lg space-y-4 bg-white rounded-xl shadow-2xl p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-                <svg
-                  className="w-6 h-6 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
+            <DialogPanel className="max-w-lg space-y-4 bg-white rounded-lg border border-base-200 shadow-lg p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-50 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               
-              <DialogTitle className="text-xl font-bold text-gray-900 text-center">
+              <DialogTitle className="text-lg font-semibold text-base-900 text-center">
                 Delete Post
               </DialogTitle>
               
-              <p className="text-gray-600 text-center">
-                Are you sure you want to delete <span className="font-semibold text-gray-900">"{deleteModal.title}"</span>? This action cannot be undone.
+              <p className="text-slate-600 text-center text-sm">
+                Are you sure you want to delete <span className="font-medium text-base-900">"{deleteModal.title}"</span>? This action cannot be undone.
               </p>
               
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleDeleteCancel}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
                 >
                   {deleting ? (
                     <>
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Deleting...
                     </>
                   ) : (

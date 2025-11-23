@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { toast } from 'sonner';
+import { AlertTriangle, Loader2, ArrowLeft } from 'lucide-react';
 
 interface Post {
   id: string;
@@ -91,20 +92,20 @@ export default function PostPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-2xl text-indigo-600 animate-pulse">Loading post...</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="text-lg text-slate-600 font-medium">Loading post...</div>
       </div>
     );
   }
 
   if (error || !post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md">
-          <div className="text-red-600 text-xl mb-4">{error || 'Post not found'}</div>
+      <div className="min-h-screen bg-base-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg border border-base-200 shadow-sm p-8 max-w-md">
+          <div className="text-base-900 text-lg font-medium mb-4">{error || 'Post not found'}</div>
           <Link 
             href="/"
-            className="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="inline-block px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 transition-colors font-medium"
           >
             Back to Home
           </Link>
@@ -114,27 +115,28 @@ export default function PostPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
+    <div className="min-h-screen bg-base-50">
       {/* Header */}
-      <header className="bg-white shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <header className="bg-white border-b border-base-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex justify-between items-center">
             <Link
               href="/"
-              className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
+              className="text-slate-600 hover:text-slate-900 flex items-center gap-2 font-medium text-sm transition-colors"
             >
-              <span>←</span> Back to Blog
+              <ArrowLeft className="w-4 h-4" />
+              Back to Blog
             </Link>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <Link
                 href={`/posts/${post.id}/edit`}
-                className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                className="px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
               >
                 Edit
               </Link>
               <button
                 onClick={handleDeleteClick}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
               >
                 Delete
               </button>
@@ -144,11 +146,11 @@ export default function PostPage() {
       </header>
 
       {/* Post Content */}
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <article className="bg-white rounded-xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-8">
-            <h1 className="text-3xl font-bold text-white mb-4">{post.title}</h1>
-            <div className="text-purple-100">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <article className="bg-white rounded-lg border border-base-200 shadow-sm overflow-hidden">
+          <div className="border-b border-base-200 px-6 sm:px-8 py-8">
+            <h1 className="text-3xl font-semibold text-base-900 mb-4 tracking-tight">{post.title}</h1>
+            <div className="text-sm text-slate-600 space-y-1">
               <div>Created: {formatDate(post.created_at)}</div>
               {post.last_modified !== post.created_at && (
                 <div>Last modified: {formatDate(post.last_modified)}</div>
@@ -156,29 +158,29 @@ export default function PostPage() {
             </div>
           </div>
           
-          <div className="p-8">
-            <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+          <div className="px-6 sm:px-8 py-8">
+            <div className="prose prose-slate prose-lg max-w-none text-base-800 leading-relaxed">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {post.content}
               </ReactMarkdown>
             </div>
           </div>
 
-          <div className="bg-gray-50 px-8 py-6">
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-gray-500">
-                Post ID: <code className="bg-gray-200 px-2 py-1 rounded">{post.id}</code>
+          <div className="bg-base-50 border-t border-base-200 px-6 sm:px-8 py-6">
+            <div className="flex justify-between items-center flex-wrap gap-4">
+              <div className="text-xs text-slate-500 font-mono">
+                Post ID: <code className="bg-base-200 px-2 py-1 rounded text-slate-700">{post.id}</code>
               </div>
               <div className="flex gap-3">
                 <Link
                   href={`/posts/${post.id}/edit`}
-                  className="px-6 py-2 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all"
+                  className="px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
                 >
                   Edit Post
                 </Link>
                 <button
                   onClick={handleDeleteClick}
-                  className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all"
+                  className="px-4 py-2 text-sm bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors font-medium"
                 >
                   Delete Post
                 </button>
@@ -191,68 +193,37 @@ export default function PostPage() {
       {/* Delete Confirmation Modal */}
       {post && (
         <Dialog open={showDeleteModal} onClose={handleDeleteCancel} className="relative z-50">
-          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 bg-base-900/50" aria-hidden="true" />
           <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
-            <DialogPanel className="max-w-lg space-y-4 bg-white rounded-xl shadow-2xl p-6">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full">
-                <svg
-                  className="w-6 h-6 text-red-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
+            <DialogPanel className="max-w-lg space-y-4 bg-white rounded-lg border border-base-200 shadow-lg p-6">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-50 rounded-full">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
               </div>
               
-              <DialogTitle className="text-xl font-bold text-gray-900 text-center">
+              <DialogTitle className="text-lg font-semibold text-base-900 text-center">
                 Delete Post
               </DialogTitle>
               
-              <p className="text-gray-600 text-center">
-                Are you sure you want to delete <span className="font-semibold text-gray-900">"{post.title}"</span>? This action cannot be undone.
+              <p className="text-slate-600 text-center text-sm">
+                Are you sure you want to delete <span className="font-medium text-base-900">"{post.title}"</span>? This action cannot be undone.
               </p>
               
               <div className="flex gap-3 pt-4">
                 <button
                   onClick={handleDeleteCancel}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={deleting}
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm flex items-center justify-center gap-2"
                 >
                   {deleting ? (
                     <>
-                      <svg
-                        className="animate-spin h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Deleting...
                     </>
                   ) : (
