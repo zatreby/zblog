@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import MarkdownEditor from '../../../components/MarkdownEditor';
+import { parseMarkdown, combineToMarkdown } from '../../../utils/markdown';
 
 interface Post {
   id: string;
@@ -17,7 +19,7 @@ export default function EditPostPage() {
   const params = useParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
-  const [editedPost, setEditedPost] = useState({ title: '', content: '' });
+  const [editedPostContent, setEditedPostContent] = useState('# ');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
@@ -42,7 +44,8 @@ export default function EditPostPage() {
       }
       const data = await response.json();
       setPost(data.data);
-      setEditedPost({ title: data.data.title, content: data.data.content });
+      // Combine title and content into markdown format
+      setEditedPostContent(combineToMarkdown(data.data.title, data.data.content));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -52,19 +55,24 @@ export default function EditPostPage() {
 
   const handleUpdatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!post || !editedPost.title.trim() || !editedPost.content.trim()) {
-      alert('Please fill in all fields');
+    
+    if (!post) return;
+    
+    const { title, content } = parseMarkdown(editedPostContent);
+    
+    if (!title.trim()) {
+      alert('Please enter a title for your post');
       return;
     }
 
     try {
       setUpdating(true);
       const response = await fetch(`${API_URL}/posts/${post.id}`, {
-        method: 'PATCH', // Assuming PATCH for partial updates; use 'PUT' if your API requires full updates
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(editedPost),
+        body: JSON.stringify({ title, content }),
       });
 
       if (!response.ok) throw new Error('Failed to update post');
@@ -119,34 +127,17 @@ export default function EditPostPage() {
       </header>
 
       {/* Edit Form */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-lg border border-base-200 shadow-sm p-6 sm:p-8">
-          <h1 className="text-2xl font-semibold text-base-900 mb-6">Edit Post</h1>
+          <div className="mb-6">
+            <h1 className="text-2xl font-semibold text-base-900 mb-2">Edit Post</h1>
+            <p className="text-sm text-slate-600">Edit your title and content in the unified editor below.</p>
+          </div>
           <form onSubmit={handleUpdatePost}>
-            <div className="mb-5">
-              <label htmlFor="title" className="block text-sm font-medium text-base-700 mb-2">
-                Title
-              </label>
-              <input
-                id="title"
-                type="text"
-                value={editedPost.title}
-                onChange={(e) => setEditedPost({ ...editedPost, title: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-base-900 placeholder-base-400"
-                placeholder="Enter post title..."
-                disabled={updating}
-              />
-            </div>
             <div className="mb-6">
-              <label htmlFor="content" className="block text-sm font-medium text-base-700 mb-2">
-                Content (Markdown)
-              </label>
-              <textarea
-                id="content"
-                value={editedPost.content}
-                onChange={(e) => setEditedPost({ ...editedPost, content: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 h-64 resize-y font-mono text-sm text-base-900 placeholder-base-400"
-                placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
+              <MarkdownEditor
+                value={editedPostContent}
+                onChange={setEditedPostContent}
                 disabled={updating}
               />
             </div>

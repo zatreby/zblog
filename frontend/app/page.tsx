@@ -7,6 +7,8 @@ import remarkGfm from 'remark-gfm';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { toast } from 'sonner';
 import { AlertTriangle, Loader2 } from 'lucide-react';
+import MarkdownEditor from './components/MarkdownEditor';
+import { parseMarkdown } from './utils/markdown';
 
 interface Post {
   id: string;
@@ -21,7 +23,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '' });
+  const [newPostContent, setNewPostContent] = useState('# ');
   const [creating, setCreating] = useState(false);
   const [deleteModal, setDeleteModal] = useState<{ id: string; title: string } | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -48,8 +50,11 @@ export default function HomePage() {
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPost.title.trim() || !newPost.content.trim()) {
-      alert('Please fill in all fields');
+    
+    const { title, content } = parseMarkdown(newPostContent);
+    
+    if (!title.trim()) {
+      toast.error('Please enter a title for your post');
       return;
     }
 
@@ -60,17 +65,18 @@ export default function HomePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(newPost),
+        body: JSON.stringify({ title, content }),
       });
 
       if (!response.ok) throw new Error('Failed to create post');
       
       const data = await response.json();
       setPosts([data.data, ...posts]);
-      setNewPost({ title: '', content: '' });
+      setNewPostContent('# ');
       setShowCreateForm(false);
+      toast.success('Post created successfully');
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to create post');
+      toast.error(err instanceof Error ? err.message : 'Failed to create post');
     } finally {
       setCreating(false);
     }
@@ -168,43 +174,39 @@ export default function HomePage() {
 
       {/* Create Post Form */}
       {showCreateForm && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <form onSubmit={handleCreatePost} className="bg-white rounded-lg border border-base-200 shadow-sm p-6 sm:p-8">
-            <h2 className="text-xl font-semibold mb-6 text-base-900">Create New Post</h2>
-            <div className="mb-5">
-              <label htmlFor="title" className="block text-sm font-medium text-base-700 mb-2">
-                Title
-              </label>
-              <input
-                id="title"
-                type="text"
-                value={newPost.title}
-                onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 text-base-900 placeholder-base-400"
-                placeholder="Enter post title..."
-                disabled={creating}
-              />
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-base-900 mb-2">Create New Post</h2>
+              <p className="text-sm text-slate-600">Start by typing your title after the # symbol, then press Enter to begin writing.</p>
             </div>
             <div className="mb-6">
-              <label htmlFor="content" className="block text-sm font-medium text-base-700 mb-2">
-                Content (Markdown)
-              </label>
-              <textarea
-                id="content"
-                value={newPost.content}
-                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 h-40 resize-none font-mono text-sm text-base-900 placeholder-base-400"
-                placeholder="Write your content in Markdown format...&#10;&#10;Example:&#10;# Heading&#10;**Bold text**&#10;*Italic text*&#10;- List item"
+              <MarkdownEditor
+                value={newPostContent}
+                onChange={setNewPostContent}
                 disabled={creating}
               />
             </div>
-            <button
-              type="submit"
-              disabled={creating}
-              className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-            >
-              {creating ? 'Creating...' : 'Create Post'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={creating}
+                className="px-4 py-2 bg-accent-600 text-white rounded-md hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                {creating ? 'Creating...' : 'Create Post'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCreateForm(false);
+                  setNewPostContent('# ');
+                }}
+                disabled={creating}
+                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+              >
+                Cancel
+              </button>
+            </div>
           </form>
         </div>
       )}
