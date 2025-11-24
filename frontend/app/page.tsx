@@ -7,7 +7,7 @@ import remarkGfm from 'remark-gfm';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { useKeyboardShortcut } from './hooks/useKeyboardShortcut';
 import { toast } from 'sonner';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Plus, Eye, Pencil, Trash2, X, Check, FileText } from 'lucide-react';
 import MarkdownEditor from './components/MarkdownEditor';
 import { parseMarkdown, combineToMarkdown } from './utils/markdown';
 import ThemeToggle from './components/ThemeToggle';
@@ -189,19 +189,24 @@ export default function HomePage() {
             <h1 className="text-2xl font-bold text-base-900 dark:text-base-100 tracking-tight">
               Zlogg
             </h1>
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 items-center">
               <ThemeToggle />
               <button
-                onClick={fetchPosts}
-                className="px-4 py-2 text-sm border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-50 dark:hover:bg-base-700 transition-colors font-medium"
-              >
-                Refresh
-              </button>
-              <button
                 onClick={() => setShowCreateForm(!showCreateForm)}
-                className="px-4 py-2 text-sm bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 transition-colors font-medium shadow-sm"
+                aria-label={showCreateForm ? 'Cancel' : 'Create new post'}
               >
-                {showCreateForm ? 'Cancel' : '+ New Post'}
+                {showCreateForm ? (
+                  <>
+                    <X className="w-4 h-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4" />
+                    New Post
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -223,13 +228,24 @@ export default function HomePage() {
                 disabled={creating}
               />
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 type="submit"
                 disabled={creating}
-                className="px-4 py-2 bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium shadow-sm"
+                aria-label="Create post"
               >
-                {creating ? 'Creating...' : 'Create Post'}
+                {creating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Create Post
+                  </>
+                )}
               </button>
               <button
                 type="button"
@@ -238,8 +254,10 @@ export default function HomePage() {
                   setNewPostContent('# ');
                 }}
                 disabled={creating}
-                className="px-4 py-2 bg-slate-100 dark:bg-base-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-base-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-base-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-base-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                aria-label="Cancel"
               >
+                <X className="h-4 w-4" />
                 Cancel
               </button>
             </div>
@@ -256,44 +274,62 @@ export default function HomePage() {
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="bg-white dark:bg-base-800 rounded-lg border border-base-200 dark:border-base-700 shadow-sm hover:shadow-md transition-all overflow-hidden"
+                className="bg-white dark:bg-base-800 rounded-lg border border-base-200 dark:border-base-700 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col group cursor-pointer"
               >
-                <div className="p-6">
-                  <h2 className="text-lg font-semibold text-base-900 dark:text-base-100 mb-3 line-clamp-2">
-                    {post.title}
-                  </h2>
-                  <div className="text-slate-600 dark:text-slate-400 mb-4 line-clamp-3 prose prose-sm max-w-none prose-slate dark:prose-invert">
+                {/* Header with title, metadata, and action buttons */}
+                <div className="flex items-start gap-2 p-5 border-b border-base-200 dark:border-base-700">
+                  <Link href={`/posts/${post.id}`} className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold text-base-900 dark:text-base-100 line-clamp-2 mb-2 group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors">
+                      {post.title}
+                    </h2>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <time dateTime={post.created_at}>
+                        {new Date(post.created_at).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </time>
+                      {post.last_modified !== post.created_at && (
+                        <>
+                          <span>•</span>
+                          <span>Updated</span>
+                        </>
+                      )}
+                    </div>
+                  </Link>
+                  <div className="flex gap-1 shrink-0">
+                    <Link
+                      href={`/posts/${post.id}/edit`}
+                      className="flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-base-700 rounded-md transition-colors"
+                      aria-label="Edit post"
+                      title="Edit post"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(post.id, post.title);
+                      }}
+                      className="flex items-center justify-center p-2 text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                      aria-label="Delete post"
+                      title="Delete post"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Content extract */}
+                <Link href={`/posts/${post.id}`} className="flex-1 p-5">
+                  <div className="text-slate-600 dark:text-slate-400 line-clamp-4 prose prose-sm max-w-none prose-slate dark:prose-invert">
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {post.content}
                     </ReactMarkdown>
                   </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mb-4 space-y-1">
-                    <div>Created: {formatDate(post.created_at)}</div>
-                    {post.last_modified !== post.created_at && (
-                      <div>Modified: {formatDate(post.last_modified)}</div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/posts/${post.id}`}
-                      className="flex-1 text-center px-3 py-2 text-sm bg-slate-100 dark:bg-base-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-base-600 transition-colors font-medium"
-                    >
-                      View
-                    </Link>
-                    <Link
-                      href={`/posts/${post.id}/edit`}
-                      className="flex-1 text-center px-3 py-2 text-sm bg-slate-100 dark:bg-base-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-base-600 transition-colors font-medium"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDeleteClick(post.id, post.title)}
-                      className="flex-1 px-3 py-2 text-sm bg-slate-100 dark:bg-base-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-base-600 transition-colors font-medium"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
+                </Link>
               </article>
             ))}
           </div>
