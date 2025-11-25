@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { toast } from 'sonner';
-import MarkdownEditor from '../../../components/MarkdownEditor';
-import { parseMarkdown, combineToMarkdown } from '../../../utils/markdown';
-import ThemeToggle from '../../../../components/ThemeToggle';
-import LoadingSpinner from '../../../../components/LoadingSpinner';
-import { useKeyboardShortcut } from '../../../hooks/useKeyboardShortcut';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import MarkdownEditor from "../../../components/MarkdownEditor";
+import { parseMarkdown, combineToMarkdown } from "../../../utils/markdown";
+import ThemeToggle from "../../../../components/ThemeToggle";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { useKeyboardShortcut } from "../../../hooks/useKeyboardShortcut";
+import { useAdminAuth } from "../../../contexts/AdminAuthContext";
 
 interface Post {
   id: string;
@@ -23,12 +24,14 @@ export default function EditPostPage() {
   const params = useParams();
   const router = useRouter();
   const [post, setPost] = useState<Post | null>(null);
-  const [editedPostContent, setEditedPostContent] = useState('# ');
+  const [editedPostContent, setEditedPostContent] = useState("# ");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
+  const { logout } = useAdminAuth();
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
   useEffect(() => {
     if (params.id) {
@@ -36,22 +39,32 @@ export default function EditPostPage() {
     }
   }, [params.id]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("admin_token");
+    return {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    };
+  };
+
   const fetchPost = async (id: string) => {
     try {
       setLoading(true);
       const response = await fetch(`${API_URL}/posts/${id}`);
       if (!response.ok) {
         if (response.status === 404) {
-          throw new Error('Post not found');
+          throw new Error("Post not found");
         }
-        throw new Error('Failed to fetch post');
+        throw new Error("Failed to fetch post");
       }
       const data = await response.json();
       setPost(data.data);
       // Combine title and content into markdown format
-      setEditedPostContent(combineToMarkdown(data.data.title, data.data.content));
+      setEditedPostContent(
+        combineToMarkdown(data.data.title, data.data.content)
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -59,32 +72,35 @@ export default function EditPostPage() {
 
   const handleUpdatePost = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    
+
     if (!post) return;
-    
+
     const { title, content } = parseMarkdown(editedPostContent);
-    
+
     if (!title.trim()) {
-      toast.error('Please enter a title for your post');
+      toast.error("Please enter a title for your post");
       return;
     }
 
     try {
       setUpdating(true);
       const response = await fetch(`${API_URL}/posts/${post.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: "PATCH",
+        headers: getAuthHeaders(),
         body: JSON.stringify({ title, content }),
       });
 
-      if (!response.ok) throw new Error('Failed to update post');
-      
-      toast.success('Post updated successfully');
-      router.push(`/posts/${post.id}`);
+      if (response.status === 401) {
+        logout();
+        throw new Error("Session expired. Please login again.");
+      }
+
+      if (!response.ok) throw new Error("Failed to update post");
+
+      toast.success("Post updated successfully");
+      router.push(`/admin/posts/${post.id}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update post');
+      toast.error(err instanceof Error ? err.message : "Failed to update post");
     } finally {
       setUpdating(false);
     }
@@ -92,7 +108,7 @@ export default function EditPostPage() {
 
   // Keyboard shortcut: Ctrl+S / Cmd+S to save
   useKeyboardShortcut({
-    key: 's',
+    key: "s",
     ctrl: true,
     meta: true,
     callback: handleUpdatePost,
@@ -107,8 +123,10 @@ export default function EditPostPage() {
     return (
       <div className="min-h-screen bg-base-50 dark:bg-base-900 flex items-center justify-center">
         <div className="bg-white dark:bg-base-800 rounded-lg border border-base-200 dark:border-base-700 shadow-sm p-8 max-w-md">
-          <div className="text-base-900 dark:text-base-100 text-lg font-medium mb-4">{error || 'Post not found'}</div>
-          <Link 
+          <div className="text-base-900 dark:text-base-100 text-lg font-medium mb-4">
+            {error || "Post not found"}
+          </div>
+          <Link
             href="/admin"
             className="inline-block px-4 py-2 bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 transition-colors font-medium"
           >
@@ -141,8 +159,12 @@ export default function EditPostPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-base-800 rounded-lg border border-base-200 dark:border-base-700 shadow-sm p-6 sm:p-8">
           <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-base-900 dark:text-base-100 mb-2">Edit Post</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Edit your title and content in the unified editor below.</p>
+            <h1 className="text-2xl font-semibold text-base-900 dark:text-base-100 mb-2">
+              Edit Post
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Edit your title and content in the unified editor below.
+            </p>
           </div>
           <form onSubmit={handleUpdatePost}>
             <div className="mb-6">
@@ -158,7 +180,7 @@ export default function EditPostPage() {
                 disabled={updating}
                 className="px-4 py-2 bg-accent-600 dark:bg-accent-500 text-white rounded-md hover:bg-accent-700 dark:hover:bg-accent-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
-                {updating ? 'Updating...' : 'Update Post'}
+                {updating ? "Updating..." : "Update Post"}
               </button>
               <Link
                 href={`/admin/posts/${post.id}`}
@@ -173,3 +195,4 @@ export default function EditPostPage() {
     </div>
   );
 }
+
