@@ -1,51 +1,143 @@
-# JAMstack Headless CMS with PHP & Next.js
+# Zlogg — Modern Decoupled Blog Platform (PHP + Next.js)
 
-A modern, decoupled web application using a JAMstack architecture, featuring a PHP backend with SQLite and a Next.js frontend styled with Tailwind CSS.
-
-## Project Structure
-- **backend/**: PHP REST API with SQLite database (`backend.php`, `blog.db`).
-- **frontend/**: Next.js app with dynamic routing for blog posts, using Tailwind CSS for styling.
-- **devops/**: Scripts for starting, stopping, and installing the app (`start.sh`, `stop.sh`, `install.sh`).
-- **docs/**: Presentation slides (`slides.html`) explaining the architecture.
+Zlogg is a lightweight, secure JAMstack blog platform with a PHP + SQLite backend and a Next.js frontend styled with Tailwind CSS. It includes a fully authenticated admin panel for managing posts.
 
 ## Features
-- Create, read, update, and delete (CRUD) blog posts via a RESTful API.
-- Responsive, modern UI with Tailwind CSS.
-- Dynamic routing for viewing and editing posts.
-- Headless CMS approach for flexible content delivery.
 
-## Prerequisites
-- Node.js (v18 or higher)
-- PHP (v8.0 or higher)
-- pnpm (v8 or higher, for frontend)
-- SQLite3 (for backend database)
+- **Public Blog**: Responsive, Markdown-rendered posts with dark mode
+- **Admin Panel**: Token-based login, full post CRUD, Markdown editor
+- **Backend**: PHP 8+ REST API, SQLite (no setup), 24h token expiry
+- **Dev-Friendly**: Next.js App Router, Tailwind, simple scripts
+- **Optional**: Cloudflare Tunnel for instant public access
 
-## Setup
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd <repository-name>
-   ```
-2. Run the installation script:
-   ```bash
-   ./devops/install.sh
-   ```
-3. Start the app:
-   ```bash
-   ./devops/start.sh
-   ```
-   - Backend runs at `http://localhost:8000`.
-   - Frontend runs at `http://localhost:3000`.
+## Project Structure
+
+```text
+backend/      PHP API + SQLite
+frontend/     Next.js frontend
+scripts/      Install / start / stop / tunnel
+logs/         Server logs
+```
+
+## Requirements
+
+- Node.js ≥ 18
+- PHP ≥ 8 with sqlite3
+- pnpm ≥ 8
+- cloudflared (optional)
+
+## Quick Start
+
+```bash
+git clone github.com/zatreby/zlogg
+cd zlogg
+chmod +x scripts/*.sh
+./scripts/install.sh
+./scripts/start.sh
+```
+
+Services:
+
+- Backend → [http://localhost:8000](http://localhost:8000)
+- Frontend → [http://localhost:3000](http://localhost:3000)
+- Admin Panel → [http://localhost:3000/admin](http://localhost:3000/admin)
 
 ## Usage
-- Visit `http://localhost:3000` to access the blog.
-- Create/edit posts via the UI or interact directly with the API at `http://localhost:8000/api/posts`.
+
+### Admin Panel
+
+1. Open `/admin`
+2. Log in using the password set during install
+3. Create/edit/delete posts (Markdown supported, `Ctrl+S` to save)
+
+### API Endpoints
+
+#### Public
+
+```text
+GET /api/posts
+GET /api/posts/{id}
+```
+
+#### Admin
+
+```text
+POST /api/admin/login      {password}
+GET  /api/admin/verify
+POST /api/admin/logout
+POST   /api/posts
+PATCH  /api/posts/{id}
+DELETE /api/posts/{id}
+```
 
 ## Development
-- Frontend: `cd frontend && pnpm dev`
-- Backend: Ensure PHP server is running (handled by `start.sh`).
-- Modify `backend/backend.php` for API changes or `frontend/app/` for UI updates.
 
-## Deployment
-- Frontend: Build with `cd frontend && pnpm build` for static export or server-side rendering.
-- Backend: Deploy `backend.php` and `blog.db` to a PHP-compatible server with SQLite support.
+### Frontend
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+### Backend
+
+```bash
+php -S localhost:8000 backend.php
+```
+
+## Cloudflare Tunnel (Optional)
+
+Temporary:
+
+```bash
+./scripts/tunnel.sh   # Option 1
+```
+
+Permanent:
+
+```bash
+./scripts/tunnel.sh   # Option 2
+```
+
+Set the frontend API URL:
+
+```bash
+NEXT_PUBLIC_API_URL=https://yourdomain.com/api
+```
+
+## Management Scripts
+
+```bash
+./scripts/start.sh    Start servers
+./scripts/dev.sh      Quick start
+./scripts/stop.sh     Stop servers
+./scripts/tunnel.sh   Public URL via Cloudflare
+```
+
+## Security Notes
+
+- Password stored in `backend/.env`
+- Tokens expire in 24 hours
+- Use HTTPS in production
+- Back up `backend/blog.db`
+
+## Database Schema
+
+### posts
+
+```sql
+id TEXT PRIMARY KEY
+title TEXT
+content TEXT
+created_at DATETIME
+last_modified DATETIME
+```
+
+### admin_tokens
+
+```sql
+token TEXT PRIMARY KEY
+created_at DATETIME
+expires_at DATETIME
+```
